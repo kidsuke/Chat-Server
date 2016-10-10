@@ -57,5 +57,13 @@ public class ChatHistory implements ObservableHistory{
        }
     }
     
+    @Override
+    public synchronized void notifyAllObserverExcept(HistoryObserver o, ChatMessage chat){
+        for (HistoryObserver ho: listOfObservers){
+            if (!ho.equals(o))
+                ho.update(chat);   
+       }
+    }
+    
     
 }

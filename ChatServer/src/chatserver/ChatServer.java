@@ -23,12 +23,10 @@ import java.util.List;
 public class ChatServer{
     private ServerSocket serverSocket;
     private Socket clientSocket;
-   
     
     public ChatServer(){
         serverSocket = null;
         clientSocket = null;
-       
     }
     
     public void serve(){
@@ -45,12 +43,15 @@ public class ChatServer{
                 clientSocket = serverSocket.accept();
                 System.out.println("Client accepted: " + clientSocket);
                 System.out.println("");
-                CommandInterpreter ci = new CommandInterpreter(clientSocket.getInputStream(), new PrintStream(clientSocket.getOutputStream(), true));
+                CommandInterpreter ci = new CommandInterpreter(clientSocket.getInputStream(), clientSocket.getOutputStream());
                 Thread t = new Thread(ci);
                 t.start();
+                //t.join();
             }catch (IOException e){
                 e.printStackTrace();
-            }
+            }//catch (InterruptedException ie){
+            //    System.out.println("Thread has been interrupted.");
+            //}
         }
     }
     

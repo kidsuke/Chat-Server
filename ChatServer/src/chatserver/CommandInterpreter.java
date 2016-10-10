@@ -13,31 +13,29 @@ package chatserver;
  */
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommandInterpreter implements Runnable, HistoryObserver{
     private final BufferedReader reader;
     private final PrintWriter writer;
-    private List<User> listOfUsers = new ArrayList<User>();
-    private List<UserCommand> listOfCommands = new ArrayList<UserCommand>();
-    private User currentUser;
+    private Users listOfUsers;
+    //private List<UserCommand> listOfCommands = new ArrayList<UserCommand>();
+    //private User currentUser;
+    private String currentUser;
     private ChatHistory history;
     
-    public CommandInterpreter(InputStream is, PrintStream ps){
+    public CommandInterpreter(InputStream is, OutputStream ps){
         reader = new BufferedReader(new InputStreamReader(is));
         writer = new PrintWriter(ps, true);
-        listOfCommands.add(new UserCommand(":user"));
-        listOfCommands.add(new UserCommand(":list"));
-        listOfCommands.add(new UserCommand(":history"));
-        listOfCommands.add(new UserCommand(":quit"));
-        listOfUsers.add(new User("longvu"));
-        listOfUsers.add(new User("phucho"));
-        listOfUsers.add(new User("liamnguyen"));
+        listOfUsers = Users.getIntance();
         history = ChatHistory.getInstance();
     }
 
@@ -46,22 +44,51 @@ public class CommandInterpreter implements Runnable, HistoryObserver{
         String line;
         String message;
         StringBuilder messBuilder = new StringBuilder(500);
+        
         history.register(this);
       
         while(true){
-            message = "";
             try{
                 while (!(line = reader.readLine()).endsWith("[-r-]")){
                     
                     messBuilder.append(line).append("\n");
                 } 
+                
                 messBuilder.append(line.substring(0, line.indexOf(" [-r-]")));
                 message = messBuilder.toString();
+          
                 if (message.equals(""))
                     continue;
-                System.out.println(message);
-                if (message.charAt(0) == ':'){
+                
+                if (message.startsWith(":user ")){
+                    currentUser = message.substring(message.indexOf(" "), message.length());
+                    if (!listOfUsers.exists(currentUser)){ 
+                        listOfUsers.insert(currentUser);
+                        System.out.println(currentUser.length());
+                        writer.println("Login Successfully");
+                        writer.println("Current User: " + currentUser);
+                        history.notifyAllObserverExcept(this, new ChatMessage(currentUser,"has logged in.", true));
+                    }else
+                        writer.println("invalid");
+                }else if (message.equals(":quit")) {
+                    listOfUsers.remove(currentUser);
+                    history.notifyAllObserverExcept(this, new ChatMessage(currentUser,"has logged out.", true));
+                    close();
+                    break;
+                }else{
+                    history.notifyAllObserverExcept(this, new ChatMessage(currentUser,message, false));
+                }
+            }catch (SocketException e){
+                close();
+            }catch(IOException ioe){
+                close();
+            }catch(NullPointerException npe){
+                close();
+            }
+                /*if (message.charAt(0) == ':'){
+                    System.out.println("inside ?");
                     UserCommand command = checkForCommand(message);
+                    System.out.println(command.toString());
                     if (command != null){
                         switch(command.getCommand()){
                             case ":user":
@@ -75,8 +102,10 @@ public class CommandInterpreter implements Runnable, HistoryObserver{
                                     if (currentUser == null)
                                         writer.println("User does not exist");
                                         //System.out.println("Logging in failed");
-                                    else
+                                    else{
+                                        System.out.println("here?");
                                         writer.println("Current User: " + currentUser.getName());
+                                    }
                                 }
                                 break;
                             case ":list":
@@ -98,33 +127,27 @@ public class CommandInterpreter implements Runnable, HistoryObserver{
                     if (currentUser == null)
                         writer.println("Username not set. Give \":user username\" to log in.");
                     else{
-                        history.notifyAllObserver(new ChatMessage(currentUser,message));
+                        history.notifyAllObserverExcept(this, new ChatMessage(currentUser,message));
                     }
                 }
             }catch(Exception e){
                 e.printStackTrace();
-            }
+            }*/
             messBuilder.setLength(0);
         }
     }
     
-    public UserCommand checkForCommand(String chat){
-        for (UserCommand command: listOfCommands){
-            if (chat.contains(command.getCommand() + " ") || chat.equals(command.getCommand()))
-                return command;
+    public void close(){
+        try{    
+            if (writer != null)
+                writer.close();
+            if (reader != null)
+                reader.close();
+        }catch(IOException ioe){
+            System.out.println("Cannot close Input or Output Stream");
         }
-        
-        return null;
     }
     
-    public User checkForUser(String chat){
-        for (User user: listOfUsers){
-            if (chat.substring(chat.indexOf(" "), chat.length()).contains(user.getName()))
-                return user;
-        }
-        
-        return null;
-    }
     
     @Override
     public void update(ChatMessage chat){

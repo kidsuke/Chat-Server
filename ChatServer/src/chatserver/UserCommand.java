@@ -22,4 +22,8 @@ public class UserCommand {
     public String getCommand(){
         return command;
     }
+    
+    public String toString(){
+        return command;
+    }
 }

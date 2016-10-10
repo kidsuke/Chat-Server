@@ -5,16 +5,10 @@
  */
 package chatclient;
 
-import java.awt.Color;
 import java.io.BufferedReader;
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import ui.MessagePanel;
+import java.net.Socket;
 
 /*
  * @author ADMIN
@@ -24,53 +18,37 @@ import ui.MessagePanel;
  */
 
 public class HandleIncomingMessage implements Runnable{
-    private final BufferedReader reader;
-    private final MessagePanel panel;
-    private final DefaultStyledDocument doc;
+    private BufferedReader reader;
+    private Socket socket;
+    private ChatClient client;
     
-    public HandleIncomingMessage(InputStream is, MessagePanel panel, DefaultStyledDocument doc){
-        reader = new BufferedReader(new InputStreamReader(is));
-        this.doc = doc;
-        this.panel = panel;
+    public HandleIncomingMessage(ChatClient client, Socket s){
+        this.socket = s;
+        this.client = client;
     }
     
     @Override
     public void run(){
-      
+        initIO();
         
         try{
             String msg;
-     
             while(true){
                 if ((msg = reader.readLine()) == null)
                     continue;
-
-                insertMessage(msg);
+                
+                client.update(msg);
             }
         }catch(Exception e){
             e.printStackTrace();
         }
     }
     
-    public Style stylingMessage(){
-        panel.getTextPane().setDocument(doc);
-        StyleContext context = new StyleContext();
-        Style style = context.addStyle("test", null);
-        StyleConstants.setForeground(style, Color.BLUE);
-        StyleConstants.setBold(style, true);
-        
-        return style;
-    }
-    
-    public void insertMessage(String msg){
+    public void initIO(){
         try{
-            if (msg.startsWith("@")){
-                doc.insertString(doc.getLength(), msg.substring(0, msg.indexOf(":") + 1), stylingMessage());
-                doc.insertString(doc.getLength(), msg.substring(msg.indexOf(":") + 1, msg.length()) + "\n", null);
-            }else
-                doc.insertString(doc.getLength(), msg + "\n", null);
-        }catch(BadLocationException e){
-            System.out.println("Attempts to reference a location that doesn't exist");
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        }catch(IOException ioe){
+            System.out.println("Cannot open input stream");
         }
     }
 }

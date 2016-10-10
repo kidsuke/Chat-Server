@@ -16,4 +16,5 @@ public interface ObservableHistory {
     public void register(HistoryObserver o);
     public void deregister(HistoryObserver o);
     public void notifyAllObserver(ChatMessage chat);
+    public void notifyAllObserverExcept(HistoryObserver o, ChatMessage chat);
 }

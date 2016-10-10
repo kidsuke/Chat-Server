@@ -13,15 +13,20 @@ package chatserver;
  */
 
 public class ChatMessage {
-    private User account;
+    private String account;
     private String chat;
+    private boolean isFromServer;
     
-    public ChatMessage(User account, String chat){
+    public ChatMessage(String account, String chat, boolean isFromServer){
         this.account = account;
         this.chat = chat;
+        this.isFromServer = isFromServer;
     }
     
     public String toString(){
-        return "@" + account + ": " + chat;
+        if (!isFromServer)
+            return "@" + account + ": " + chat;
+        else
+            return account + " " + chat;
     }
 }

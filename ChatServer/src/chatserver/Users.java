@@ -17,6 +17,7 @@ import java.util.List;
 
 public class Users {
     List<String> listOfUsers;
+    private static Users users;
     
     private Users(){
         listOfUsers = new ArrayList<String>();
@@ -34,6 +35,13 @@ public class Users {
     public void remove(String username){
         if (listOfUsers.contains(username))
             listOfUsers.remove(username);
+    }
+    
+    public static Users getIntance(){
+        if (users == null)
+            users = new Users();
+        
+        return users;
     }
     
     @Override
