@@ -6,9 +6,7 @@
 package chatserver;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /*
  * @author ADMIN
@@ -18,17 +16,13 @@ import java.util.Map;
  */
 
 public class ChatHistory implements ObservableHistory{
-    Map<User,ChatMessage> history;
+    List<ChatMessage> history;
     List<HistoryObserver> listOfObservers;
     private static ChatHistory instance;
     
     private ChatHistory(){
-        history = new HashMap<User,ChatMessage>();
+        history = new ArrayList<ChatMessage>();
         listOfObservers = new ArrayList<HistoryObserver>();
-    }
-    
-    public void addMessage(User user, ChatMessage message){
-        
     }
     
     public static ChatHistory getInstance(){
@@ -59,11 +53,22 @@ public class ChatHistory implements ObservableHistory{
     
     @Override
     public synchronized void notifyAllObserverExcept(HistoryObserver o, ChatMessage chat){
+        history.add(chat);
         for (HistoryObserver ho: listOfObservers){
             if (!ho.equals(o))
                 ho.update(chat);   
        }
     }
     
+    @Override
+    public String toString(){
+        String list = "";
+        
+        for (ChatMessage m: history){
+            list += m.toString() + "\n";
+        }
+        
+        return list.substring(0, list.lastIndexOf("\n")) + " [-r-]";
+    }
     
 }

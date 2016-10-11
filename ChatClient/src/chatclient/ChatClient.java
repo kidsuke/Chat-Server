@@ -10,7 +10,9 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import javax.swing.AbstractAction;
@@ -45,18 +47,41 @@ public class ChatClient {
     private ChatPanel chatPanel;
     private Socket socket;
     private DefaultStyledDocument doc;
-    private boolean check;
+    private BufferedReader reader;
     
     public ChatClient(){
         messPanel = new MessagePanel();
         chatPanel = new ChatPanel();
         doc = new DefaultStyledDocument();
-        check = false;
     }
     public void run(){
         connect();
         initIO();
         createChatGUI();
+        
+        String s;
+        while (true) {
+            String username = JOptionPane.showInputDialog("Enter Username");
+           
+            if (!username.equals(""))
+                writer.println(":user " + username + " [-r-]");
+            try{
+                s = reader.readLine();
+                if (s.equals("invalid"))
+                    JOptionPane.showMessageDialog(null, "Invalid Username or Username has been used.");
+                else{
+                    update(s);
+                    break;
+                }
+            }catch(IOException ioe){
+                ioe.printStackTrace();
+            }      
+        }
+        /*try{
+        reader.close();
+        }catch(Exception e){
+            System.out.println("Cannot close BufferedReader");
+        }*/
         
         try{
             HandleIncomingMessage handleMess = new HandleIncomingMessage(this, socket);
@@ -66,18 +91,6 @@ public class ChatClient {
             e.printStackTrace();
         }
         
-        while (true) {
-            String username = JOptionPane.showInputDialog("Enter Username");
-            if (!username.equals(""))
-                writer.println(":user " + username + " [-r-]");
-            
-            if (check = true)
-                break;
-            
-            JOptionPane.showMessageDialog(null, "Invalid Username or Username has been used");
-        }
-        
-       
     }
     
     public void connect(){
@@ -89,7 +102,7 @@ public class ChatClient {
                 socket = new Socket("localhost", 9000);
                 update(socket.toString()); 
                 update("Connected to " + socket.getRemoteSocketAddress() + "\n");
-               
+
             }catch(IOException ioe) {
                 ioe.printStackTrace();
             }
@@ -101,6 +114,7 @@ public class ChatClient {
     public void initIO(){
          try {
             writer = new PrintWriter(socket.getOutputStream(), true);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         }catch (IOException e){
             System.out.println("Cannot open output stream");
         }
@@ -174,11 +188,7 @@ public class ChatClient {
     }
     
     public void update(String msg){
-        if (!msg.equals("invalid"))
-            check = true;
-        else
-            return;
-            
+     
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

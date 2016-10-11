@@ -23,10 +23,11 @@ public class ChatMessage {
         this.isFromServer = isFromServer;
     }
     
+    @Override
     public String toString(){
         if (!isFromServer)
-            return "@" + account + ": " + chat;
+            return "@" + account + ": " + chat + " [-r-]";
         else
-            return account + " " + chat;
+            return account + " " + chat + " [-r-]";
     }
 }

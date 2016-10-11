@@ -52,6 +52,6 @@ public class Users {
             list += s + "\n";
         }
         
-        return list;
+        return list.substring(0, list.lastIndexOf("\n")) + " [-r-]";
     }
 }

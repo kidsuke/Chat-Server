@@ -33,11 +33,21 @@ public class HandleIncomingMessage implements Runnable{
         
         try{
             String msg;
+            StringBuilder messBuilder = new StringBuilder(500);
+            
             while(true){
-                if ((msg = reader.readLine()) == null)
-                    continue;
+                //if ((msg = reader.readLine()) == null)
+                    //continue;
+                while (!(msg = reader.readLine()).endsWith("[-r-]")){
+                    
+                    messBuilder.append(msg).append("\n");
+                } 
+                
+                messBuilder.append(msg.substring(0, msg.indexOf(" [-r-]")));
+                msg = messBuilder.toString();
                 
                 client.update(msg);
+                messBuilder.setLength(0);
             }
         }catch(Exception e){
             e.printStackTrace();

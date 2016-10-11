@@ -63,18 +63,19 @@ public class CommandInterpreter implements Runnable, HistoryObserver{
                     continue;
                 
                 if (message.startsWith(":user ")){
-                    currentUser = message.substring(message.indexOf(" "), message.length());
+                    currentUser = message.substring(message.indexOf(" ")+1, message.length());
                     if (!listOfUsers.exists(currentUser)){ 
                         listOfUsers.insert(currentUser);
                         writer.println("Login Successfully");
-                        writer.println("Current User: " + currentUser);
+                        writer.println("Current User: " + currentUser + " [-r-]");
                         history.notifyAllObserverExcept(this, new ChatMessage(currentUser,"has logged in.", true));
                     }else
                         writer.println("invalid");
+                }else if (message.equals(":list")){
+                    writer.println("Online:\n" + listOfUsers.toString());
+                }else if (message.equals(":history")){
+                    writer.println("History:\n" + history.toString());
                 }else if (message.equals(":quit")) {
-                    listOfUsers.remove(currentUser);
-                    history.notifyAllObserverExcept(this, new ChatMessage(currentUser,"has logged out.", true));
-                    close();
                     break;
                 }else{
                     history.notifyAllObserverExcept(this, new ChatMessage(currentUser,message, false));
@@ -85,12 +86,9 @@ public class CommandInterpreter implements Runnable, HistoryObserver{
                // break;
             //}
             catch(IOException ioe){
-                //listOfUsers.remove(currentUser);
-                //close();
                 break;
             }
             catch(NullPointerException npe){
-                //close();
                 break;
             }
               
