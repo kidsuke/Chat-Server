@@ -31,7 +31,7 @@ public class ChatServer{
     
     public void serve(){
         try{
-            System.out.println("Chat Server");
+            System.out.println("Chat Server\n");
             serverSocket = new ServerSocket(9000);
         }catch(Exception e){
             e.printStackTrace();
@@ -43,15 +43,12 @@ public class ChatServer{
                 clientSocket = serverSocket.accept();
                 System.out.println("Client accepted: " + clientSocket);
                 System.out.println("");
-                CommandInterpreter ci = new CommandInterpreter(clientSocket.getInputStream(), clientSocket.getOutputStream());
+                CommandInterpreter ci = new CommandInterpreter(clientSocket);
                 Thread t = new Thread(ci);
                 t.start();
-                //t.join();
             }catch (IOException e){
                 e.printStackTrace();
-            }//catch (InterruptedException ie){
-            //    System.out.println("Thread has been interrupted.");
-            //}
+            }
         }
     }
     
