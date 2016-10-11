@@ -54,6 +54,7 @@ public class ChatClient {
         chatPanel = new ChatPanel();
         doc = new DefaultStyledDocument();
     }
+    
     public void run(){
         connect();
         initIO();

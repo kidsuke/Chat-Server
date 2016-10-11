@@ -4,8 +4,9 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/Metropolia/2nd%20Year/Project/Chat%20Client-Server%20Project/ChatServer/src/chatserver/CommandInterpreter.java</file>
+            <file>file:/D:/Metropolia/2nd%20Year/Project/Chat%20Client-Server%20Project/ChatServer/src/chatserver/ChatMessage.java</file>
             <file>file:/D:/Metropolia/2nd%20Year/Project/Chat%20Client-Server%20Project/ChatServer/src/chatserver/ChatServer.java</file>
-            <file>file:/D:/Metropolia/2nd%20Year/Project/Chat%20Client-Server%20Project/ChatServer/src/chatserver/Users.java</file>
+            <file>file:/D:/Metropolia/2nd%20Year/Project/Chat%20Client-Server%20Project/ChatServer/src/chatserver/ChatHistory.java</file>
         </group>
     </open-files>
 </project-private>
